@@ -1,0 +1,1306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Free online photo editor with filters, adjustments, and creative tools. Edit your photos directly in your browser.">
+    <meta name="keywords" content="photo editor, image editing, online editor, filters, photo effects">
+    <title>PhotoEdit Pro - Free Online Photo Editor</title>
+    <style>
+        :root {
+            --primary-color: #4a6ee0;
+            --secondary-color: #6c757d;
+            --success-color: #28a745;
+            --danger-color: #dc3545;
+            --light-color: #f8f9fa;
+            --dark-color: #343a40;
+            --border-radius: 8px;
+            --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f5f7fb;
+            color: var(--dark-color);
+            line-height: 1.6;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--primary-color), #6a11cb);
+            color: white;
+            padding: 1rem 2rem;
+            box-shadow: var(--box-shadow);
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+        }
+
+        .logo i {
+            margin-right: 10px;
+        }
+
+        nav ul {
+            display: flex;
+            list-style: none;
+        }
+
+        nav ul li {
+            margin-left: 1.5rem;
+        }
+
+        nav ul li a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            transition: opacity 0.3s;
+        }
+
+        nav ul li a:hover {
+            opacity: 0.8;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+            display: grid;
+            grid-template-columns: 1fr 300px;
+            gap: 2rem;
+        }
+
+        .main-content {
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            padding: 1.5rem;
+        }
+
+        .editor-area {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .canvas-container {
+            width: 100%;
+            max-width: 700px;
+            height: 400px;
+            border: 2px dashed #ddd;
+            border-radius: var(--border-radius);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            background-color: #f9f9f9;
+            overflow: hidden;
+            position: relative;
+        }
+
+        #photoCanvas {
+            max-width: 100%;
+            max-height: 100%;
+            display: none;
+        }
+
+        .upload-area {
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .upload-btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-weight: 600;
+            transition: background-color 0.3s;
+            display: inline-flex;
+            align-items: center;
+            margin: 0.5rem;
+        }
+
+        .upload-btn:hover {
+            background-color: #3a5ec0;
+        }
+
+        .upload-btn i {
+            margin-right: 8px;
+        }
+
+        #fileInput {
+            display: none;
+        }
+
+        .tools-panel {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .tool-card {
+            background: var(--light-color);
+            border-radius: var(--border-radius);
+            padding: 1rem;
+            text-align: center;
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .tool-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--box-shadow);
+        }
+
+        .tool-card i {
+            font-size: 2rem;
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .tool-card h3 {
+            font-size: 1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .tool-card p {
+            font-size: 0.8rem;
+            color: var(--secondary-color);
+        }
+
+        .tool-card.active {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .tool-card.active i {
+            color: white;
+        }
+
+        .adjustment-controls {
+            background: var(--light-color);
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .control-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .control-group h3 {
+            margin-bottom: 0.8rem;
+            font-size: 1.1rem;
+            color: var(--dark-color);
+        }
+
+        .slider-container {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.8rem;
+        }
+
+        .slider-container label {
+            width: 120px;
+            font-weight: 500;
+        }
+
+        .slider-container input {
+            flex: 1;
+            margin: 0 1rem;
+        }
+
+        .slider-container span {
+            width: 40px;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        input[type="range"] {
+            -webkit-appearance: none;
+            height: 6px;
+            border-radius: 3px;
+            background: #ddd;
+            outline: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: var(--primary-color);
+            cursor: pointer;
+        }
+
+        .filter-gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .filter-item {
+            height: 80px;
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            cursor: pointer;
+            position: relative;
+            border: 2px solid transparent;
+            transition: border-color 0.3s;
+        }
+
+        .filter-item.active {
+            border-color: var(--primary-color);
+        }
+
+        .filter-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .filter-name {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 5px;
+            font-size: 0.7rem;
+            text-align: center;
+        }
+
+        .action-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .btn {
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: var(--border-radius);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #3a5ec0;
+        }
+
+        .btn-secondary {
+            background-color: var(--secondary-color);
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background-color: #5a6268;
+        }
+
+        .btn-success {
+            background-color: var(--success-color);
+            color: white;
+        }
+
+        .btn-success:hover {
+            background-color: #218838;
+        }
+
+        .btn i {
+            margin-right: 8px;
+        }
+
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        .ad-container {
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            padding: 1rem;
+            text-align: center;
+            min-height: 250px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .ad-label {
+            font-size: 0.8rem;
+            color: var(--secondary-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .instructions {
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            padding: 1.5rem;
+        }
+
+        .instructions h2 {
+            margin-bottom: 1rem;
+            color: var(--primary-color);
+        }
+
+        .instructions ol {
+            padding-left: 1.5rem;
+        }
+
+        .instructions li {
+            margin-bottom: 0.8rem;
+        }
+
+        footer {
+            background-color: var(--dark-color);
+            color: white;
+            text-align: center;
+            padding: 2rem 1rem;
+            margin-top: 3rem;
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin: 1.5rem 0;
+        }
+
+        .footer-links a {
+            color: #ccc;
+            text-decoration: none;
+        }
+
+        .footer-links a:hover {
+            color: white;
+        }
+
+        .copyright {
+            margin-top: 1.5rem;
+            font-size: 0.9rem;
+            color: #aaa;
+        }
+
+        /* Tool-specific controls */
+        .tool-controls {
+            display: none;
+            margin-top: 1rem;
+            padding: 1rem;
+            background: #f0f2f5;
+            border-radius: var(--border-radius);
+        }
+
+        .tool-controls.active {
+            display: block;
+        }
+
+        .crop-controls {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .crop-preview {
+            width: 100%;
+            height: 200px;
+            border: 1px solid #ddd;
+            margin: 1rem 0;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .text-controls input, .text-controls select {
+            padding: 0.5rem;
+            margin: 0.5rem 0;
+            width: 100%;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        .color-picker {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+
+        .color-picker input {
+            width: 50px;
+            height: 30px;
+            border: none;
+            cursor: pointer;
+        }
+
+        /* Responsive styles */
+        @media (max-width: 992px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+            
+            .sidebar {
+                order: -1;
+                margin-bottom: 2rem;
+            }
+            
+            .tools-panel {
+                grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            nav ul {
+                margin-top: 1rem;
+                justify-content: center;
+            }
+            
+            .tools-panel {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .tools-panel {
+                grid-template-columns: 1fr;
+            }
+            
+            .filter-gallery {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <div class="logo">
+                <i class="fas fa-camera-retro"></i>
+                <span>PhotoEdit Pro</span>
+            </div>
+            <nav>
+                <ul>
+                    <li><a href="#"><i class="fas fa-home"></i> Home</a></li>
+                    <li><a href="#"><i class="fas fa-info-circle"></i> About</a></li>
+                    <li><a href="#"><i class="fas fa-question-circle"></i> Help</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <div class="container">
+        <main class="main-content">
+            <section class="editor-area">
+                <div class="canvas-container">
+                    <canvas id="photoCanvas"></canvas>
+                    <div class="upload-area" id="uploadArea">
+                        <i class="fas fa-cloud-upload-alt" style="font-size: 3rem; color: #ccc; margin-bottom: 1rem;"></i>
+                        <h2>Upload Your Photo</h2>
+                        <p>Drag & drop an image or click the button below</p>
+                        <button class="upload-btn" id="uploadBtn">
+                            <i class="fas fa-folder-open"></i> Choose Image
+                        </button>
+                        <input type="file" id="fileInput" accept="image/*">
+                    </div>
+                </div>
+                
+                <div class="action-buttons">
+                    <button class="btn btn-secondary" id="resetBtn">
+                        <i class="fas fa-undo"></i> Reset
+                    </button>
+                    <button class="btn btn-primary" id="applyBtn">
+                        <i class="fas fa-check"></i> Apply Changes
+                    </button>
+                    <button class="btn btn-success" id="downloadBtn">
+                        <i class="fas fa-download"></i> Download
+                    </button>
+                </div>
+            </section>
+
+            <section class="tools-panel">
+                <div class="tool-card" data-tool="adjustments">
+                    <i class="fas fa-sliders-h"></i>
+                    <h3>Adjustments</h3>
+                    <p>Brightness, contrast, etc.</p>
+                </div>
+                <div class="tool-card" data-tool="filters">
+                    <i class="fas fa-filter"></i>
+                    <h3>Filters</h3>
+                    <p>Apply artistic filters</p>
+                </div>
+                <div class="tool-card" data-tool="crop">
+                    <i class="fas fa-crop-alt"></i>
+                    <h3>Crop & Rotate</h3>
+                    <p>Resize and rotate image</p>
+                </div>
+                <div class="tool-card" data-tool="text">
+                    <i class="fas fa-font"></i>
+                    <h3>Add Text</h3>
+                    <p>Insert text overlays</p>
+                </div>
+                <div class="tool-card" data-tool="effects">
+                    <i class="fas fa-magic"></i>
+                    <h3>Effects</h3>
+                    <p>Blur, sharpen, etc.</p>
+                </div>
+                <div class="tool-card" data-tool="frames">
+                    <i class="fas fa-square"></i>
+                    <h3>Frames</h3>
+                    <p>Add borders to image</p>
+                </div>
+            </section>
+
+            <!-- Adjustments Tool Controls -->
+            <div class="tool-controls" id="adjustmentsControls">
+                <div class="control-group">
+                    <h3>Basic Adjustments</h3>
+                    <div class="slider-container">
+                        <label for="brightness">Brightness</label>
+                        <input type="range" id="brightness" min="-100" max="100" value="0">
+                        <span id="brightnessValue">0</span>
+                    </div>
+                    <div class="slider-container">
+                        <label for="contrast">Contrast</label>
+                        <input type="range" id="contrast" min="-100" max="100" value="0">
+                        <span id="contrastValue">0</span>
+                    </div>
+                    <div class="slider-container">
+                        <label for="saturation">Saturation</label>
+                        <input type="range" id="saturation" min="-100" max="100" value="0">
+                        <span id="saturationValue">0</span>
+                    </div>
+                    <div class="slider-container">
+                        <label for="exposure">Exposure</label>
+                        <input type="range" id="exposure" min="-100" max="100" value="0">
+                        <span id="exposureValue">0</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Filters Tool Controls -->
+            <div class="tool-controls" id="filtersControls">
+                <div class="control-group">
+                    <h3>Filters</h3>
+                    <div class="filter-gallery">
+                        <div class="filter-item active" data-filter="none">
+                            <div style="width:100%;height:100%;background:#f0f0f0;"></div>
+                            <div class="filter-name">Original</div>
+                        </div>
+                        <div class="filter-item" data-filter="grayscale">
+                            <div style="width:100%;height:100%;background:linear-gradient(45deg, #aaa, #ddd)"></div>
+                            <div class="filter-name">Grayscale</div>
+                        </div>
+                        <div class="filter-item" data-filter="sepia">
+                            <div style="width:100%;height:100%;background:#704214"></div>
+                            <div class="filter-name">Sepia</div>
+                        </div>
+                        <div class="filter-item" data-filter="vintage">
+                            <div style="width:100%;height:100%;background:#d9a066"></div>
+                            <div class="filter-name">Vintage</div>
+                        </div>
+                        <div class="filter-item" data-filter="clarendon">
+                            <div style="width:100%;height:100%;background:#a8c6f0"></div>
+                            <div class="filter-name">Clarendon</div>
+                        </div>
+                        <div class="filter-item" data-filter="moon">
+                            <div style="width:100%;height:100%;background:#b3b3cc"></div>
+                            <div class="filter-name">Moon</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Crop Tool Controls -->
+            <div class="tool-controls" id="cropControls">
+                <div class="control-group">
+                    <h3>Crop & Rotate</h3>
+                    <div class="crop-controls">
+                        <div class="slider-container">
+                            <label for="cropWidth">Width</label>
+                            <input type="range" id="cropWidth" min="10" max="100" value="100">
+                            <span id="cropWidthValue">100%</span>
+                        </div>
+                        <div class="slider-container">
+                            <label for="cropHeight">Height</label>
+                            <input type="range" id="cropHeight" min="10" max="100" value="100">
+                            <span id="cropHeightValue">100%</span>
+                        </div>
+                        <div class="slider-container">
+                            <label for="rotation">Rotation</label>
+                            <input type="range" id="rotation" min="-180" max="180" value="0">
+                            <span id="rotationValue">0°</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Text Tool Controls -->
+            <div class="tool-controls" id="textControls">
+                <div class="control-group">
+                    <h3>Add Text</h3>
+                    <div class="text-controls">
+                        <input type="text" id="textInput" placeholder="Enter your text here">
+                        <select id="fontFamily">
+                            <option value="Arial">Arial</option>
+                            <option value="Verdana">Verdana</option>
+                            <option value="Georgia">Georgia</option>
+                            <option value="Times New Roman">Times New Roman</option>
+                            <option value="Courier New">Courier New</option>
+                        </select>
+                        <div class="slider-container">
+                            <label for="fontSize">Font Size</label>
+                            <input type="range" id="fontSize" min="10" max="100" value="24">
+                            <span id="fontSizeValue">24px</span>
+                        </div>
+                        <div class="color-picker">
+                            <label for="textColor">Text Color:</label>
+                            <input type="color" id="textColor" value="#000000">
+                        </div>
+                        <button class="btn btn-primary" id="addTextBtn">Add Text to Image</button>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <aside class="sidebar">
+            <div class="ad-container">
+                <div class="ad-label">Advertisement</div>
+                <!-- Google AdSense Ad Unit -->
+                <div id="ad-unit-1">
+                    <!-- AdSense code will be inserted here -->
+                    <div style="width: 300px; height: 250px; background: #f0f0f0; display: flex; justify-content: center; align-items: center; color: #999; border-radius: 4px;">
+                        AdSense Ad Unit (300x250)
+                    </div>
+                </div>
+            </div>
+
+            <div class="instructions">
+                <h2>How to Use This Editor</h2>
+                <ol>
+                    <li>Upload your photo by clicking the "Choose Image" button</li>
+                    <li>Select an editing tool from the options above</li>
+                    <li>Adjust the sliders to modify brightness, contrast, etc.</li>
+                    <li>Apply filters by clicking on the filter previews</li>
+                    <li>Click "Apply Changes" to see your edits</li>
+                    <li>Download your edited image when you're satisfied</li>
+                </ol>
+            </div>
+
+            <div class="ad-container">
+                <div class="ad-label">Advertisement</div>
+                <!-- Google AdSense Ad Unit -->
+                <div id="ad-unit-2">
+                    <!-- AdSense code will be inserted here -->
+                    <div style="width: 300px; height: 600px; background: #f0f0f0; display: flex; justify-content: center; align-items: center; color: #999; border-radius: 4px;">
+                        AdSense Ad Unit (300x600)
+                    </div>
+                </div>
+            </div>
+        </aside>
+    </div>
+
+    <footer>
+        <div class="footer-content">
+            <div class="logo">
+                <i class="fas fa-camera-retro"></i>
+                <span>PhotoEdit Pro</span>
+            </div>
+            <div class="footer-links">
+                <a href="#">Privacy Policy</a>
+                <a href="#">Terms of Service</a>
+                <a href="#">Contact Us</a>
+                <a href="#">Feedback</a>
+            </div>
+            <p>Edit your photos online for free with our powerful photo editor tool.</p>
+            <div class="copyright">
+                &copy; 2023 PhotoEdit Pro. All rights reserved.
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // DOM elements
+        const fileInput = document.getElementById('fileInput');
+        const uploadBtn = document.getElementById('uploadBtn');
+        const uploadArea = document.getElementById('uploadArea');
+        const canvas = document.getElementById('photoCanvas');
+        const ctx = canvas.getContext('2d');
+        const resetBtn = document.getElementById('resetBtn');
+        const applyBtn = document.getElementById('applyBtn');
+        const downloadBtn = document.getElementById('downloadBtn');
+        
+        // Tool controls
+        const toolCards = document.querySelectorAll('.tool-card');
+        const toolControls = document.querySelectorAll('.tool-controls');
+        
+        // Adjustment controls
+        const brightnessSlider = document.getElementById('brightness');
+        const contrastSlider = document.getElementById('contrast');
+        const saturationSlider = document.getElementById('saturation');
+        const exposureSlider = document.getElementById('exposure');
+        const brightnessValue = document.getElementById('brightnessValue');
+        const contrastValue = document.getElementById('contrastValue');
+        const saturationValue = document.getElementById('saturationValue');
+        const exposureValue = document.getElementById('exposureValue');
+        
+        // Filter items
+        const filterItems = document.querySelectorAll('.filter-item');
+        
+        // Crop controls
+        const cropWidthSlider = document.getElementById('cropWidth');
+        const cropHeightSlider = document.getElementById('cropHeight');
+        const rotationSlider = document.getElementById('rotation');
+        const cropWidthValue = document.getElementById('cropWidthValue');
+        const cropHeightValue = document.getElementById('cropHeightValue');
+        const rotationValue = document.getElementById('rotationValue');
+        
+        // Text controls
+        const textInput = document.getElementById('textInput');
+        const fontFamilySelect = document.getElementById('fontFamily');
+        const fontSizeSlider = document.getElementById('fontSize');
+        const fontSizeValue = document.getElementById('fontSizeValue');
+        const textColorPicker = document.getElementById('textColor');
+        const addTextBtn = document.getElementById('addTextBtn');
+        
+        // Current image and original image data
+        let originalImage = null;
+        let currentImage = null;
+        let currentTool = 'adjustments';
+        
+        // Initialize
+        function init() {
+            // Event listeners
+            uploadBtn.addEventListener('click', () => fileInput.click());
+            fileInput.addEventListener('change', handleImageUpload);
+            resetBtn.addEventListener('click', resetImage);
+            applyBtn.addEventListener('click', applyChanges);
+            downloadBtn.addEventListener('click', downloadImage);
+            
+            // Tool selection
+            toolCards.forEach(card => {
+                card.addEventListener('click', () => {
+                    const tool = card.getAttribute('data-tool');
+                    selectTool(tool);
+                });
+            });
+            
+            // Adjustment sliders
+            brightnessSlider.addEventListener('input', updateBrightness);
+            contrastSlider.addEventListener('input', updateContrast);
+            saturationSlider.addEventListener('input', updateSaturation);
+            exposureSlider.addEventListener('input', updateExposure);
+            
+            // Filter items
+            filterItems.forEach(item => {
+                item.addEventListener('click', () => {
+                    const filter = item.getAttribute('data-filter');
+                    applyFilter(filter);
+                    
+                    // Update active filter
+                    filterItems.forEach(f => f.classList.remove('active'));
+                    item.classList.add('active');
+                });
+            });
+            
+            // Crop controls
+            cropWidthSlider.addEventListener('input', updateCropWidth);
+            cropHeightSlider.addEventListener('input', updateCropHeight);
+            rotationSlider.addEventListener('input', updateRotation);
+            
+            // Text controls
+            fontSizeSlider.addEventListener('input', updateFontSize);
+            addTextBtn.addEventListener('click', addTextToImage);
+            
+            // Set initial tool
+            selectTool('adjustments');
+        }
+        
+        // Handle image upload
+        function handleImageUpload(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                const img = new Image();
+                img.onload = function() {
+                    // Set canvas dimensions to match image
+                    const maxWidth = 700;
+                    const maxHeight = 400;
+                    let { width, height } = img;
+                    
+                    // Scale down if image is too large
+                    if (width > maxWidth || height > maxHeight) {
+                        const ratio = Math.min(maxWidth / width, maxHeight / height);
+                        width *= ratio;
+                        height *= ratio;
+                    }
+                    
+                    canvas.width = width;
+                    canvas.height = height;
+                    
+                    // Draw image on canvas
+                    ctx.drawImage(img, 0, 0, width, height);
+                    
+                    // Store original image data
+                    originalImage = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                    currentImage = originalImage;
+                    
+                    // Show canvas and hide upload area
+                    canvas.style.display = 'block';
+                    uploadArea.style.display = 'none';
+                    
+                    // Reset adjustments
+                    resetAdjustments();
+                };
+                img.src = event.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+        
+        // Select tool
+        function selectTool(tool) {
+            currentTool = tool;
+            
+            // Update active tool card
+            toolCards.forEach(card => {
+                if (card.getAttribute('data-tool') === tool) {
+                    card.classList.add('active');
+                } else {
+                    card.classList.remove('active');
+                }
+            });
+            
+            // Show corresponding controls
+            toolControls.forEach(control => {
+                if (control.id === `${tool}Controls`) {
+                    control.classList.add('active');
+                } else {
+                    control.classList.remove('active');
+                }
+            });
+        }
+        
+        // Reset image to original
+        function resetImage() {
+            if (!originalImage) return;
+            
+            ctx.putImageData(originalImage, 0, 0);
+            currentImage = originalImage;
+            resetAdjustments();
+            resetFilters();
+        }
+        
+        // Reset adjustment sliders
+        function resetAdjustments() {
+            brightnessSlider.value = 0;
+            contrastSlider.value = 0;
+            saturationSlider.value = 0;
+            exposureSlider.value = 0;
+            brightnessValue.textContent = '0';
+            contrastValue.textContent = '0';
+            saturationValue.textContent = '0';
+            exposureValue.textContent = '0';
+        }
+        
+        // Reset filters
+        function resetFilters() {
+            filterItems.forEach(item => {
+                if (item.getAttribute('data-filter') === 'none') {
+                    item.classList.add('active');
+                } else {
+                    item.classList.remove('active');
+                }
+            });
+        }
+        
+        // Apply changes to image
+        function applyChanges() {
+            if (!currentImage) return;
+            
+            // In a real implementation, this would apply all adjustments
+            // For this demo, we'll just redraw the image
+            ctx.putImageData(currentImage, 0, 0);
+            
+            // Show success message
+            showNotification('Changes applied successfully!', 'success');
+        }
+        
+        // Download edited image
+        function downloadImage() {
+            if (!currentImage) {
+                showNotification('Please upload an image first.', 'error');
+                return;
+            }
+            
+            const link = document.createElement('a');
+            link.download = 'edited-photo.png';
+            link.href = canvas.toDataURL();
+            link.click();
+            
+            showNotification('Image downloaded successfully!', 'success');
+        }
+        
+        // Update brightness
+        function updateBrightness() {
+            const value = brightnessSlider.value;
+            brightnessValue.textContent = value;
+            applyImageAdjustments();
+        }
+        
+        // Update contrast
+        function updateContrast() {
+            const value = contrastSlider.value;
+            contrastValue.textContent = value;
+            applyImageAdjustments();
+        }
+        
+        // Update saturation
+        function updateSaturation() {
+            const value = saturationSlider.value;
+            saturationValue.textContent = value;
+            applyImageAdjustments();
+        }
+        
+        // Update exposure
+        function updateExposure() {
+            const value = exposureSlider.value;
+            exposureValue.textContent = value;
+            applyImageAdjustments();
+        }
+        
+        // Apply image adjustments
+        function applyImageAdjustments() {
+            if (!originalImage) return;
+            
+            // Create a temporary canvas to apply adjustments
+            const tempCanvas = document.createElement('canvas');
+            tempCanvas.width = canvas.width;
+            tempCanvas.height = canvas.height;
+            const tempCtx = tempCanvas.getContext('2d');
+            
+            // Draw original image
+            tempCtx.putImageData(originalImage, 0, 0);
+            
+            // Apply brightness
+            const brightness = parseInt(brightnessSlider.value) / 100;
+            tempCtx.globalCompositeOperation = 'lighter';
+            tempCtx.fillStyle = `rgba(255, 255, 255, ${Math.abs(brightness)})`;
+            tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
+            
+            // Apply contrast
+            const contrast = parseInt(contrastSlider.value) / 100;
+            tempCtx.globalCompositeOperation = 'overlay';
+            tempCtx.fillStyle = contrast > 0 ? 'white' : 'black';
+            tempCtx.globalAlpha = Math.abs(contrast);
+            tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
+            
+            // Get the adjusted image data
+            currentImage = tempCtx.getImageData(0, 0, tempCanvas.width, tempCanvas.height);
+            
+            // Draw on main canvas
+            ctx.putImageData(currentImage, 0, 0);
+        }
+        
+        // Apply filter to image
+        function applyFilter(filter) {
+            if (!currentImage) return;
+            
+            // Reset to original first
+            ctx.putImageData(originalImage, 0, 0);
+            
+            // Apply filter
+            switch(filter) {
+                case 'grayscale':
+                    applyGrayscaleFilter();
+                    break;
+                case 'sepia':
+                    applySepiaFilter();
+                    break;
+                case 'vintage':
+                    applyVintageFilter();
+                    break;
+                case 'clarendon':
+                    applyClarendonFilter();
+                    break;
+                case 'moon':
+                    applyMoonFilter();
+                    break;
+                default:
+                    // No filter - use original
+                    ctx.putImageData(originalImage, 0, 0);
+                    break;
+            }
+            
+            currentImage = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        }
+        
+        // Apply grayscale filter
+        function applyGrayscaleFilter() {
+            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            const data = imageData.data;
+            
+            for (let i = 0; i < data.length; i += 4) {
+                const avg = (data[i] + data[i + 1] + data[i + 2]) / 3;
+                data[i] = avg;     // red
+                data[i + 1] = avg; // green
+                data[i + 2] = avg; // blue
+            }
+            
+            ctx.putImageData(imageData, 0, 0);
+        }
+        
+        // Apply sepia filter
+        function applySepiaFilter() {
+            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            const data = imageData.data;
+            
+            for (let i = 0; i < data.length; i += 4) {
+                const r = data[i];
+                const g = data[i + 1];
+                const b = data[i + 2];
+                
+                data[i] = Math.min(255, (r * 0.393) + (g * 0.769) + (b * 0.189));
+                data[i + 1] = Math.min(255, (r * 0.349) + (g * 0.686) + (b * 0.168));
+                data[i + 2] = Math.min(255, (r * 0.272) + (g * 0.534) + (b * 0.131));
+            }
+            
+            ctx.putImageData(imageData, 0, 0);
+        }
+        
+        // Apply vintage filter
+        function applyVintageFilter() {
+            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            const data = imageData.data;
+            
+            for (let i = 0; i < data.length; i += 4) {
+                data[i] = Math.min(255, data[i] + 20);     // Increase red
+                data[i + 1] = Math.max(0, data[i + 1] - 10); // Decrease green
+                data[i + 2] = Math.max(0, data[i + 2] - 30); // Decrease blue
+            }
+            
+            ctx.putImageData(imageData, 0, 0);
+        }
+        
+        // Apply clarendon filter
+        function applyClarendonFilter() {
+            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            const data = imageData.data;
+            
+            for (let i = 0; i < data.length; i += 4) {
+                // Increase contrast and saturation
+                data[i] = Math.min(255, data[i] * 1.1);     // red
+                data[i + 1] = Math.min(255, data[i + 1] * 1.05); // green
+                data[i + 2] = Math.min(255, data[i + 2] * 1.2); // blue
+            }
+            
+            ctx.putImageData(imageData, 0, 0);
+        }
+        
+        // Apply moon filter
+        function applyMoonFilter() {
+            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            const data = imageData.data;
+            
+            for (let i = 0; i < data.length; i += 4) {
+                // Convert to blue-toned grayscale
+                const avg = (data[i] + data[i + 1] + data[i + 2]) / 3;
+                data[i] = avg * 0.8;     // red
+                data[i + 1] = avg * 0.9; // green
+                data[i + 2] = avg * 1.2; // blue
+            }
+            
+            ctx.putImageData(imageData, 0, 0);
+        }
+        
+        // Update crop width
+        function updateCropWidth() {
+            const value = cropWidthSlider.value;
+            cropWidthValue.textContent = `${value}%`;
+        }
+        
+        // Update crop height
+        function updateCropHeight() {
+            const value = cropHeightSlider.value;
+            cropHeightValue.textContent = `${value}%`;
+        }
+        
+        // Update rotation
+        function updateRotation() {
+            const value = rotationSlider.value;
+            rotationValue.textContent = `${value}°`;
+        }
+        
+        // Update font size
+        function updateFontSize() {
+            const value = fontSizeSlider.value;
+            fontSizeValue.textContent = `${value}px`;
+        }
+        
+        // Add text to image
+        function addTextToImage() {
+            if (!currentImage) {
+                showNotification('Please upload an image first.', 'error');
+                return;
+            }
+            
+            const text = textInput.value.trim();
+            if (!text) {
+                showNotification('Please enter some text.', 'error');
+                return;
+            }
+            
+            // Set text properties
+            ctx.font = `${fontSizeSlider.value}px ${fontFamilySelect.value}`;
+            ctx.fillStyle = textColorPicker.value;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            
+            // Add text to center of image
+            const x = canvas.width / 2;
+            const y = canvas.height / 2;
+            
+            // Add text shadow for better visibility
+            ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
+            ctx.shadowBlur = 5;
+            ctx.shadowOffsetX = 2;
+            ctx.shadowOffsetY = 2;
+            
+            ctx.fillText(text, x, y);
+            
+            // Reset shadow
+            ctx.shadowColor = 'transparent';
+            ctx.shadowBlur = 0;
+            ctx.shadowOffsetX = 0;
+            ctx.shadowOffsetY = 0;
+            
+            // Update current image
+            currentImage = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            
+            showNotification('Text added to image!', 'success');
+        }
+        
+        // Show notification
+        function showNotification(message, type) {
+            // Create notification element
+            const notification = document.createElement('div');
+            notification.textContent = message;
+            notification.style.position = 'fixed';
+            notification.style.top = '20px';
+            notification.style.right = '20px';
+            notification.style.padding = '12px 20px';
+            notification.style.borderRadius = '4px';
+            notification.style.color = 'white';
+            notification.style.fontWeight = '600';
+            notification.style.zIndex = '1000';
+            notification.style.boxShadow = '0 4px 6px rgba(0, 0, 0, 0.1)';
+            notification.style.transition = 'opacity 0.3s';
+            
+            // Set background color based on type
+            if (type === 'success') {
+                notification.style.backgroundColor = '#28a745';
+            } else if (type === 'error') {
+                notification.style.backgroundColor = '#dc3545';
+            } else {
+                notification.style.backgroundColor = '#007bff';
+            }
+            
+            // Add to page
+            document.body.appendChild(notification);
+            
+            // Remove after 3 seconds
+            setTimeout(() => {
+                notification.style.opacity = '0';
+                setTimeout(() => {
+                    document.body.removeChild(notification);
+                }, 300);
+            }, 3000);
+        }
+        
+        // Initialize the editor when the page loads
+        window.addEventListener('DOMContentLoaded', init);
+        
+        // Google AdSense integration function
+        function loadAdSense(adUnitId, containerId) {
+            // This is a placeholder for AdSense code
+            // In a real implementation, you would insert the AdSense script here
+            console.log(`Loading AdSense ad unit ${adUnitId} into container ${containerId}`);
+            
+            // Example of how AdSense code might be inserted:
+            /*
+            const adContainer = document.getElementById(containerId);
+            adContainer.innerHTML = `
+                <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${adUnitId}" crossorigin="anonymous"></script>
+                <ins class="adsbygoogle"
+                    style="display:block"
+                    data-ad-client="${adUnitId}"
+                    data-ad-slot="1234567890"
+                    data-ad-format="auto"
+                    data-full-width-responsive="true"></ins>
+                <script>
+                    (adsbygoogle = window.adsbygoogle || []).push({});
+                </script>
+            `;
+            */
+        }
+        
+        // Example of how to load ads (commented out as we don't have actual AdUnit IDs)
+        // loadAdSense('YOUR_AD_UNIT_ID_1', 'ad-unit-1');
+        // loadAdSense('YOUR_AD_UNIT_ID_2', 'ad-unit-2');
+    </script>
+</body>
+</html>
